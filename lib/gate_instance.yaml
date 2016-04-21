@@ -1,0 +1,125 @@
+heat_template_version: 2013-05-23
+
+description: Instance template
+
+parameters:
+  image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for server.
+    default: cirros
+
+  flavor:
+    type: string
+    label: Flavor
+    description: Type of instance (flavor) to be used on the compute instance.
+    default: m1.small
+
+  key_name:
+    type: string
+    label: Key name
+    description: Name of key-pair to be installed on the compute instance.
+    default: my_key
+
+  private_network:
+    type: string
+    label: Private network name or ID.
+    description: Network to attach server to.
+    default: private
+
+resources:
+  wait_condition:
+    type: OS::Heat::WaitCondition
+    properties:
+      handle: { get_resource: wait_handle }
+      count: 1
+      timeout: 600
+
+  wait_handle:
+    type: OS::Heat::WaitConditionHandle
+
+  security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: gate_security_group
+      rules:
+        - protocol: icmp
+        - protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+        - protocol: tcp
+          port_range_min: 80
+          port_range_max: 80
+        - protocol: tcp
+          port_range_min: 443
+          port_range_max: 443
+
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: private_network }
+      security_groups:
+        - { get_resource: security_group }
+
+  gate_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name : { get_param: key_name }
+      networks:
+        - port: { get_resource: port }
+
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          params:
+            wc_notify: { get_attr: ['wait_handle', 'curl_cli'] }
+          template: |
+            #!/bin/bash
+            apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+            echo deb https://apt.dockerproject.org/repo ubuntu-wily main >> /etc/apt/sources.list
+            apt-get update
+            apt-get install -y docker-engine linux-image-extra-$(uname -r) git python-pip python-dev
+
+            echo "[Unit]
+            Description=Docker Application Container Engine
+            Documentation=https://docs.docker.com
+            After=network.target docker.socket
+            Requires=docker.socket
+
+            [Service]
+            Type=notify
+            ExecStart=/usr/bin/docker daemon -H fd:// --storage-driver=aufs
+            MountFlags=shared
+            LimitNOFILE=1048576
+            LimitNPROC=1048576
+            LimitCORE=infinity
+            TimeoutStartSec=0
+
+            [Install]
+            WantedBy=multi-user.target" > /lib/systemd/system/docker.service
+
+            systemctl daemon-reload
+            service docker restart
+
+            git clone https://github.com/openstack/kolla.git
+            cd kolla/
+
+            pip install -r requirements.txt
+            pip install ansible==1.9.4
+
+            wc_notify --data-binary '{"status": "SUCCESS"}'
+
+outputs:
+  name:
+    description: Name of Gate instance.
+    value: { get_attr: [gate_instance, name] }
+
+  ip:
+    description: The IP address of Gate instance.
+    value: { get_attr: [gate_instance, first_address] }
+
+  port:
+    description: The network port of Gate instance.
+    value: { get_resource: port }
