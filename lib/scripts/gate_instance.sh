@@ -6,7 +6,7 @@ echo deb https://apt.dockerproject.org/repo ubuntu-wily main >> /etc/apt/sources
 
 # Install required packages
 apt-get update
-apt-get install -y docker-engine linux-image-extra-$(uname -r) python-dev git gcc
+apt-get install -y docker-engine linux-image-extra-$(uname -r) python-dev git gcc libffi-dev libssl-dev
 curl https://bootstrap.pypa.io/get-pip.py | python  # install pip
 
 # Configure Docker service file
@@ -30,7 +30,7 @@ WantedBy=multi-user.target" > /lib/systemd/system/docker.service
 
 # Restart docker to apply Docker file changes
 systemctl daemon-reload
-service docker restart
+systemctl restart docker
 
 # Download Kolla repo
 cd /root
@@ -41,6 +41,8 @@ cd kolla/
 pip install -r requirements.txt
 pip install ansible==1.9.4
 
+python setup.py install
+
 # Generate build configuration
 pip install tox
 tox -e genconfig
@@ -48,19 +50,21 @@ tox -e genconfig
 # Copy default configuration of Kolla
 cp -r etc/kolla /etc/
 
-# Disable libvirt. Only one copy may be running at a time.
-service libvirt-bin stop
-update-rc.d libvirt-bin disable
-
-# If you are seeing the libvirt container fail with the error below
-# /usr/sbin/libvirtd: error while loading shared libraries: libvirt-admin.so.0: cannot open shared object file: Permission denied
-# disable the libvirt profile.
-# apparmor_parser -R /etc/apparmor.d/usr.sbin.libvirtd
-
 # Replace default globals.yml configuration
+cd /etc/kolla/
 sed -i.bak 's/#kolla_base_distro: "centos"/kolla_base_distro: "ubuntu"/; s/#kolla_install_type: "binary"/kolla_install_type: "source"/' globals.yml
 
+# Build docker images
 kolla-build --base ubuntu --type source
+
+# Generate passwords
+kolla-genpwd
+
+# Check if everything is OK
+kolla-ansible prechecks
+
+# Deploy stack
+kolla-ansible deploy
 
 # Notify Heat about finishing script run.
 wc_notify --data-binary '{"status": "SUCCESS"}'
