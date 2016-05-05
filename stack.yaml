@@ -53,6 +53,9 @@ outputs:
   instance_name:
     description: Name of the instance
     value: { get_attr: [gate_instance, name] }
-  instance_ip:
+  floating_ip:
     description: The IP address of the deployed instance
     value: { get_attr: [floating_ip, ip] }
+  fixed_ip:
+    description: The IP address of internal network
+    value: { get_attr: [gate_instance, ip] }
