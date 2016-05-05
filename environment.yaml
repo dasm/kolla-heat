@@ -1,0 +1,5 @@
+parameters:
+  image: ubuntu-15.10-cloud
+  flavor: m2.medium
+  key_name: dasm_mac
+  public_network: GATEWAY_NET
