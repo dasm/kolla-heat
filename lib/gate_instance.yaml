@@ -75,6 +75,7 @@ resources:
         str_replace:
           params:
             wc_notify: { get_attr: ['wait_handle', 'curl_cli'] }
+            __fixed_ip__: { get_attr: [port, fixed_ips, 0, ip_address] }
           template: { get_file: scripts/gate_instance.sh }
 
 outputs:
