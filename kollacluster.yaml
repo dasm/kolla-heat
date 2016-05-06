@@ -1,44 +1,68 @@
 heat_template_version: 2013-05-23
 
-description: Template to deploy Kolla
+description: >
+  This template will boot a Kolla cluster with one or more nodes (as
+  specified by the number_of_nodes parameter, which defaults to "1").
 
 parameters:
-  image:
-    type: string
-    label: Image name or ID
-    description: Image to be used for the server. Please use an Ubuntu based image.
-    default: cirros
-
-  flavor:
-    type: string
-    label: Flavor
-    description: Type of instance (flavor) to be used on the compute instance.
-    default: m1.small
-
+  #
+  # REQUIRED PARAMETERS
+  #
   ssh_key_name:
     type: string
     label: Key name
     description: Name of key-pair to be installed on the compute instance.
-    default: my_key
 
   external_network:
     type: string
     label: Public network name or ID
     description: Public network with floating IP addresses.
-    default: GATEWAY_NET
 
+  #
+  # OPTIONAL PARAMETERS
+  #
+  server_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for the server. Please use an Ubuntu based image.
+    default: cirros
+
+  server_flavor:
+    type: string
+    label: Flavor
+    description: Type of instance (flavor) to be used on the compute instance.
+    default: m1.small
+
+  number_of_nodes:
+    type: string
+    description: How many Kolla nodes to spawn.
+    default: 1
+
+  private_network_cidr:
+    type: string
+    label: Network CIDR
+    description: The CIDR of the private IP network.
+    default: '10.10.10.0/24'
+
+  dns_nameserver:
+    type: comma_delimited_list
+    label: DNS nameservers
+    description: Comma separated list of DNS nameservers for the private net.
+    default: '8.8.8.8'
 
 resources:
   private_network:
     type: lib/private_network.yaml
     properties:
-      public_network: { get_param: external_network }
+      external_network: { get_param: external_network }
+      cidr: { get_param: private_network_cidr }
+      dns: { get_param: dns_nameserver }
 
   gate_instance:
     type: lib/gate_instance.yaml
     properties:
-      image: { get_param: image }
-      flavor: { get_param: flavor }
+      image: { get_param: server_image }
+      flavor: { get_param: server_flavor }
       key_name: { get_param: ssh_key_name }
       private_network: { get_attr: [private_network, name] }
 
@@ -53,9 +77,11 @@ outputs:
   instance_name:
     description: Name of the instance
     value: { get_attr: [gate_instance, name] }
-  floating_ip:
-    description: The IP address of the deployed instance
-    value: { get_attr: [floating_ip, ip] }
-  fixed_ip:
+
+  kolla_node_internal_ip:
     description: The IP address of internal network
     value: { get_attr: [gate_instance, ip] }
+
+  kolla_node_external_ip:
+    description: The IP address of the deployed instance
+    value: { get_attr: [floating_ip, ip] }

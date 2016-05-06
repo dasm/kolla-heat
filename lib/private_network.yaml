@@ -3,21 +3,21 @@ heat_template_version: 2013-05-23
 description: Template that creates a private network.
 
 parameters:
-  public_network:
+  #
+  # Parameters provided by User in kollacluster.yaml
+  #
+  external_network:
     type: string
     label: Public network name or ID
     description: Public network with floating IP addresses.
-    default: public
   cidr:
     type: string
     label: Network CIDR
     description: The CIDR of the private network.
-    default: '10.10.10.0/24'
   dns:
     type: comma_delimited_list
     label: DNS nameservers
     description: Comma separated list of DNS nameservers for the private net.
-    default: '8.8.8.8'
 
 resources:
   private_network:
