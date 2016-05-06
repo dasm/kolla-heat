@@ -20,13 +20,13 @@ parameters:
     description: Comma separated list of DNS nameservers for the private net.
 
 resources:
-  private_network:
+  internal_network:
     type: OS::Neutron::Net
 
   private_subnet:
     type: OS::Neutron::Subnet
     properties:
-      network_id: { get_resource: private_network }
+      network_id: { get_resource: internal_network }
       cidr: { get_param: cidr }
       dns_nameservers: { get_param: dns }
 
@@ -34,7 +34,7 @@ resources:
     type: OS::Neutron::Router
     properties:
       external_gateway_info:
-        network: { get_param: public_network }
+        network: { get_param: external_network }
 
   router_interface:
     type: OS::Neutron::RouterInterface
@@ -45,4 +45,4 @@ resources:
 outputs:
   name:
     description: The private network.
-    value: { get_attr: [private_network, name] }
+    value: { get_attr: [internal_network, name] }

@@ -7,25 +7,21 @@ parameters:
     type: string
     label: Image name or ID
     description: Image to be used for server.
-    default: cirros
 
   flavor:
     type: string
     label: Flavor
     description: Type of instance (flavor) to be used on the compute instance.
-    default: m1.small
 
   key_name:
     type: string
     label: Key name
     description: Name of key-pair to be installed on the compute instance.
-    default: my_key
 
-  private_network:
+  internal_network:
     type: string
     label: Private network name or ID.
     description: Network to attach server to.
-    default: private
 
 resources:
   wait_condition:
@@ -57,7 +53,7 @@ resources:
   port:
     type: OS::Neutron::Port
     properties:
-      network: { get_param: private_network }
+      network: { get_param: internal_network }
       security_groups:
         - { get_resource: security_group }
 

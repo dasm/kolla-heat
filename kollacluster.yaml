@@ -38,7 +38,7 @@ parameters:
     description: How many Kolla nodes to spawn.
     default: 1
 
-  private_network_cidr:
+  internal_network_cidr:
     type: string
     label: Network CIDR
     description: The CIDR of the private IP network.
@@ -51,11 +51,11 @@ parameters:
     default: '8.8.8.8'
 
 resources:
-  private_network:
+  internal_network:
     type: lib/private_network.yaml
     properties:
       external_network: { get_param: external_network }
-      cidr: { get_param: private_network_cidr }
+      cidr: { get_param: internal_network_cidr }
       dns: { get_param: dns_nameserver }
 
   gate_instance:
@@ -64,13 +64,13 @@ resources:
       image: { get_param: server_image }
       flavor: { get_param: server_flavor }
       key_name: { get_param: ssh_key_name }
-      private_network: { get_attr: [private_network, name] }
+      internal_network: { get_attr: [internal_network, name] }
 
   floating_ip:
     type: lib/floating_ip.yaml
     properties:
       port: { get_attr: [gate_instance, port] }
-      public_network: { get_param: external_network }
+      external_network: { get_param: external_network }
 
 
 outputs:
