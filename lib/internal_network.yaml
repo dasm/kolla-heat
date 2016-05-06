@@ -23,7 +23,7 @@ resources:
   internal_network:
     type: OS::Neutron::Net
 
-  private_subnet:
+  internal_subnet:
     type: OS::Neutron::Subnet
     properties:
       network_id: { get_resource: internal_network }
@@ -40,7 +40,7 @@ resources:
     type: OS::Neutron::RouterInterface
     properties:
       router_id: { get_resource: router }
-      subnet: { get_resource: private_subnet }
+      subnet: { get_resource: internal_subnet }
 
 outputs:
   name:
