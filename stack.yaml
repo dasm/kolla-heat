@@ -15,13 +15,13 @@ parameters:
     description: Type of instance (flavor) to be used on the compute instance.
     default: m1.small
 
-  key_name:
+  ssh_key_name:
     type: string
     label: Key name
     description: Name of key-pair to be installed on the compute instance.
     default: my_key
 
-  public_network:
+  external_network:
     type: string
     label: Public network name or ID
     description: Public network with floating IP addresses.
@@ -32,21 +32,21 @@ resources:
   private_network:
     type: lib/private_network.yaml
     properties:
-      public_network: { get_param: public_network }
+      public_network: { get_param: external_network }
 
   gate_instance:
     type: lib/gate_instance.yaml
     properties:
       image: { get_param: image }
       flavor: { get_param: flavor }
-      key_name: { get_param: key_name }
+      key_name: { get_param: ssh_key_name }
       private_network: { get_attr: [private_network, name] }
 
   floating_ip:
     type: lib/floating_ip.yaml
     properties:
       port: { get_attr: [gate_instance, port] }
-      public_network: { get_param: public_network }
+      public_network: { get_param: external_network }
 
 
 outputs:
