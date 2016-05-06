@@ -1,5 +1,5 @@
 parameters:
   ssh_key_name: dasm_mac
   external_network: GATEWAY_NET
-  image: ubuntu-15.10-cloud
-  flavor: io1-32
+  server_image: ubuntu-15.10-cloud
+  server_flavor: io1-32
