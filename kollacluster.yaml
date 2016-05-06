@@ -52,7 +52,7 @@ parameters:
 
 resources:
   internal_network:
-    type: lib/private_network.yaml
+    type: lib/internal_network.yaml
     properties:
       external_network: { get_param: external_network }
       cidr: { get_param: internal_network_cidr }
