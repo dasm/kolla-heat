@@ -4,8 +4,8 @@
 echo __fixed_ip__ `uname -n` >> /etc/hosts
 
 ## Temporary bypass script, by exiting.
-wc_notify --data-binary '{"status": "SUCCESS"}'
-exit $?
+#wc_notify --data-binary '{"status": "SUCCESS"}'
+#exit $?
 
 # Add Docker to repo
 apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
@@ -59,7 +59,7 @@ cp -r etc/kolla /etc/
 
 # Replace default globals.yml configuration
 cd /etc/kolla/
-sed -i.bak 's/#kolla_base_distro: "centos"/kolla_base_distro: "ubuntu"/; s/#kolla_install_type: "binary"/kolla_install_type: "source"/' globals.yml
+sed -i.bak 's/#kolla_base_distro: "centos"/kolla_base_distro: "ubuntu"/; s/#kolla_install_type: "binary"/kolla_install_type: "source"/; s/#enable_central_logging: "no"/enable_central_logging: "yes"/' globals.yml
 
 # Build docker images
 kolla-build --base ubuntu --type source
