@@ -1,3 +1,3 @@
 # kolla-heat
 
-openstack stack create -f yaml -t kollacluster.yaml -e local.yaml stack
+openstack stack create -f yaml -t cluster.yaml -e local.yaml stack
