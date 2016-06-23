@@ -62,8 +62,8 @@ resources:
       cidr: { get_param: internal_network_cidr }
       dns_nameserver: { get_param: dns_nameserver }
 
-  gate_instance:
-    type: lib/gate_instance.yaml
+  node:
+    type: lib/node.yaml
     properties:
       image: { get_param: server_image }
       flavor: { get_param: server_flavor }
@@ -73,18 +73,18 @@ resources:
   floating_ip:
     type: lib/floating_ip.yaml
     properties:
-      port: { get_attr: [gate_instance, port] }
+      port: { get_attr: [node, port] }
       external_network: { get_param: external_network }
 
 
 outputs:
   instance_name:
     description: Name of the instance
-    value: { get_attr: [gate_instance, name] }
+    value: { get_attr: [node, name] }
 
   kolla_node_internal_ip:
     description: The IP address of internal network
-    value: { get_attr: [gate_instance, ip] }
+    value: { get_attr: [node, ip] }
 
   kolla_node_external_ip:
     description: The IP address of the deployed instance
