@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Add current hostname to hosts
 echo __fixed_ip__ `uname -n` >> /etc/hosts
 
 ## Temporary bypass script, by exiting.
-#wc_notify --data-binary '{"status": "SUCCESS"}'
-#exit $?
+wc_notify --data-binary '{"status": "SUCCESS"}'
+exit $?
 
 # Add Docker to repo
 apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
@@ -46,7 +46,7 @@ cd kolla/
 
 # Install Kolla requirements
 pip install -r requirements.txt
-pip install ansible==1.9.4
+#pip install ansible==1.9.4
 
 python setup.py install
 

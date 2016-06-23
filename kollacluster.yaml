@@ -24,7 +24,8 @@ parameters:
   server_image:
     type: string
     label: Image name or ID
-    description: Image to be used for the server. Please use an Ubuntu based image.
+    description: >
+        Image to be used for the server. Please use an Ubuntu based image.
     default: cirros
 
   server_flavor:
@@ -42,7 +43,7 @@ parameters:
     type: string
     label: Network CIDR
     description: The CIDR of the private IP network.
-    default: '10.10.10.0/24'
+    default: '10.0.0.0/24'
 
   dns_nameserver:
     type: comma_delimited_list
@@ -51,12 +52,15 @@ parameters:
     default: '8.8.8.8'
 
 resources:
+  ######################################################################
+  # Resources
+  #
   internal_network:
     type: lib/internal_network.yaml
     properties:
       external_network: { get_param: external_network }
       cidr: { get_param: internal_network_cidr }
-      dns: { get_param: dns_nameserver }
+      dns_nameserver: { get_param: dns_nameserver }
 
   gate_instance:
     type: lib/gate_instance.yaml

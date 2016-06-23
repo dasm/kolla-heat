@@ -24,6 +24,9 @@ parameters:
     description: Network to attach server to.
 
 resources:
+  ######################################################################
+  # Server resources
+  #
   wait_condition:
     type: OS::Heat::WaitCondition
     properties:
