@@ -33,8 +33,7 @@ resources:
     properties:
       cidr: { get_param: cidr }
       network_id: { get_resource: internal_network }
-      dns_nameservers:
-        - get_param: dns_nameserver
+      dns_nameservers: { get_param: dns_nameserver }
 
   router:
     type: OS::Neutron::Router
