@@ -26,6 +26,18 @@ parameters:
     label: Private network name or ID.
     description: Network to attach server to.
 
+  secgroup_base:
+    type: string
+    label: SecGroups created in other template.
+
+  secgroup_kolla:
+    type: string
+    label: SecGroups created in other template.
+
+  secgroup_open:
+    type: string
+    label: SecGroups created in other template.
+
 resources:
   ######################################################################
   # Server resources
@@ -40,93 +52,13 @@ resources:
   wait_handle:
     type: OS::Heat::WaitConditionHandle
 
-  ######################################################################
-  #
-  # security groups.  we need to permit network traffic of various
-  # sorts.
-  #
-  secgroup_base:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        - protocol: icmp
-        - protocol: tcp
-          port_range_min: 22
-          port_range_max: 22
-
-  # Use by eth1 to permit all traffic to instances.
-  # Let the Neutron container apply security to this traffic.
-  secgroup_all_open:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        - protocol: icmp
-        - protocol: tcp
-        - protocol: udp
-
-  secgroup_kolla:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        - protocol: tcp
-          port_range_min: 5672
-          port_range_max: 5672
-        - protocol: tcp
-          port_range_min: 3306
-          port_range_max: 3306
-        - protocol: tcp
-          port_range_min: 8773
-          port_range_max: 8776
-        - protocol: tcp
-          port_range_min: 6080
-          port_range_max: 6080
-        - protocol: tcp
-          port_range_min: 6081
-          port_range_max: 6081
-        - protocol: tcp
-          port_range_min: 35357
-          port_range_max: 35357
-        - protocol: tcp
-          port_range_min: 5000
-          port_range_max: 5000
-        - protocol: tcp
-          port_range_min: 9191
-          port_range_max: 9191
-        - protocol: tcp
-          port_range_min: 9292
-          port_range_max: 9292
-        - protocol: tcp
-          port_range_min: 9696
-          port_range_max: 9696
-        - protocol: tcp
-          port_range_min: 80
-          port_range_max: 80
-        - protocol: tcp
-          port_range_min: 443
-          port_range_max: 443
-        - protocol: tcp
-          port_range_min: 8000
-          port_range_max: 8000
-        - protocol: tcp
-          port_range_min: 8004
-          port_range_max: 8004
-        - protocol: tcp
-          port_range_min: 8003
-          port_range_max: 8003
-        - protocol: tcp
-          port_range_min: 8080
-          port_range_max: 8080
-        - protocol: tcp
-          port_range_min: 8777
-          port_range_max: 8777
-
   node_eth0:
     type: OS::Neutron::Port
     properties:
       network: { get_param: internal_network }
       security_groups:
-        - { get_resource: secgroup_base }
-        - { get_resource: secgroup_kolla }
+        - { get_param: secgroup_base }
+        - { get_param: secgroup_kolla }
 
   node:
     type: OS::Nova::Server

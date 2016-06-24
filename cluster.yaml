@@ -55,6 +55,9 @@ resources:
   ######################################################################
   # Resources
   #
+  security_groups:
+    type: lib/security_groups.yaml
+
   internal_network:
     type: lib/internal_network.yaml
     properties:
@@ -69,6 +72,9 @@ resources:
       flavor: { get_param: server_flavor }
       key_name: { get_param: ssh_key_name }
       internal_network: { get_attr: [internal_network, name] }
+      secgroup_base: { get_attr: [security_groups, base] }
+      secgroup_kolla: { get_attr: [security_groups, kolla] }
+      secgroup_open: { get_attr: [security_groups, open] }
 
   floating_ip:
     type: lib/floating_ip.yaml
