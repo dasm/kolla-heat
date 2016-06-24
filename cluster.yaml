@@ -1,4 +1,4 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2015-10-15
 
 description: >
   This template will boot a Kolla cluster with one or more nodes (as
@@ -55,15 +55,17 @@ resources:
   ######################################################################
   # Resources
   #
+
+  # Create SecGroups once for all nodes
   security_groups:
     type: lib/security_groups.yaml
 
   internal_network:
     type: lib/internal_network.yaml
     properties:
-      external_network: { get_param: external_network }
       cidr: { get_param: internal_network_cidr }
       dns_nameserver: { get_param: dns_nameserver }
+      external_network: { get_param: external_network }
 
   node:
     type: lib/node.yaml
@@ -72,9 +74,7 @@ resources:
       flavor: { get_param: server_flavor }
       key_name: { get_param: ssh_key_name }
       internal_network: { get_attr: [internal_network, name] }
-      secgroup_base: { get_attr: [security_groups, base] }
-      secgroup_kolla: { get_attr: [security_groups, kolla] }
-      secgroup_open: { get_attr: [security_groups, open] }
+      security_groups: { get_resource: security_groups }
 
   floating_ip:
     type: lib/floating_ip.yaml
