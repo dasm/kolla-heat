@@ -26,6 +26,11 @@ parameters:
     label: Private network name or ID.
     description: Network to attach server to.
 
+  external_network:
+    type: string
+    rabel: External network name or ID.
+    description: Network to attach server to.
+
   security_groups:
     type: string
     label: SecGroups created in other template.
@@ -69,15 +74,24 @@ resources:
             __fixed_ip__: { get_attr: [node_eth0, fixed_ips, 0, ip_address] }
           template: { get_file: scripts/gate_instance.sh }
 
-outputs:
-  name:
-    description: Name of Gate instance.
-    value: { get_attr: [node, name] }
+  floating_ip:
+    type: lib/floating_ip.yaml
+    properties:
+      port: { get_attr: [node, port] }
+      external_network: { get_param: external_network }
 
-  ip:
+outputs:
+  #name:
+  #  description: Name of Gate instance.
+  #  value: { get_attr: [node, name] }
+
+  ip_eth0:
     description: The IP address of Gate instance.
     value: { get_attr: [node, first_address] }
 
-  port:
-    description: The network port of Gate instance.
-    value: { get_resource: port }
+  ip_floating:
+    value: { get_attr: [floating_ip, floating_ip_address] }
+
+  #port:
+  #  description: The network port of Gate instance.
+  #  value: { get_resource: port }

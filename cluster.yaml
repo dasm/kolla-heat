@@ -1,8 +1,8 @@
 heat_template_version: 2015-10-15
 
 description: >
-  This template will boot a Kolla cluster with one or more nodes (as
-  specified by the number_of_nodes parameter, which defaults to "1").
+  This template will boot a cluster with one or more nodes (as specified by the
+  number_of_nodes parameter, which defaults to "1").
 
 parameters:
   #
@@ -39,6 +39,7 @@ parameters:
     description: How many Kolla nodes to spawn.
     default: 1
 
+  # fixed_network
   internal_network_cidr:
     type: string
     label: Network CIDR
@@ -74,13 +75,8 @@ resources:
       flavor: { get_param: server_flavor }
       key_name: { get_param: ssh_key_name }
       internal_network: { get_attr: [internal_network, name] }
-      security_groups: { get_resource: security_groups }
-
-  floating_ip:
-    type: lib/floating_ip.yaml
-    properties:
-      port: { get_attr: [node, port] }
       external_network: { get_param: external_network }
+      security_groups: { get_resource: security_groups }
 
 
 outputs:
@@ -92,6 +88,6 @@ outputs:
     description: The IP address of internal network
     value: { get_attr: [node, ip] }
 
-  kolla_node_external_ip:
-    description: The IP address of the deployed instance
-    value: { get_attr: [floating_ip, ip] }
+  #kolla_node_external_ip:
+  #  description: The IP address of the deployed instance
+  #  value: { get_attr: [floating_ip, ip] }
