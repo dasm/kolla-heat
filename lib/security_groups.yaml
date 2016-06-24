@@ -4,9 +4,10 @@ description: Security Groups template
 
 resources:
   ######################################################################
-  # security groups.  we need to permit network traffic of various
-  # sorts.
+  # Security Groups.
   #
+
+  # SSH
   secgroup_base:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -16,9 +17,8 @@ resources:
           port_range_min: 22
           port_range_max: 22
 
-  # Use by eth1 to permit all traffic to instances.
-  # Let the Neutron container apply security to this traffic.
-  secgroup_all_open:
+  # Open for everything: eth1
+  secgroup_open:
     type: OS::Neutron::SecurityGroup
     properties:
       rules:
@@ -26,6 +26,7 @@ resources:
         - protocol: tcp
         - protocol: udp
 
+  # Open for Kolla resources
   secgroup_kolla:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -86,9 +87,11 @@ outputs:
   base:
     description: Base security group
     value: { get_resource: secgroup_base }
+
   kolla:
     description: Kolla security group
     value: { get_resource: secgroup_kolla }
+
   open:
     description: Open security group
     value: { get_resource: secgroup_open }
